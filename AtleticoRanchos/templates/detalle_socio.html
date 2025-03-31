@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Detalle de Socio{% endblock %}
+{% block content %}
+  <h2>Detalle del Socio</h2>
+  <div class="card mb-3">
+    <div class="card-header">
+      {{ socio.nombre }} {{ socio.apellido }}
+    </div>
+    <div class="card-body">
+      <p><strong>Teléfono:</strong> {{ socio.telefono }}</p>
+      <p><strong>Correo:</strong> {{ socio.correo }}</p>
+      <p><strong>Dirección:</strong> {{ socio.direccion }}</p>
+      <p><strong>Es Jugador:</strong> {{ 'Sí' if socio.es_jugador else 'No' }}</p>
+      {% if socio.es_jugador %}
+      <p><strong>Categoría:</strong> {{ socio.categoria }}</p>
+      <p><strong>Tiene Ficha Médica:</strong> {{ 'Sí' if socio.tiene_ficha_medica else 'No' }}</p>
+      <p><strong>Expiración Ficha:</strong> {{ socio.fecha_expiracion_ficha or '-' }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <h3>Historial de Pagos</h3>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>ID Pago</th>
+        <th>Monto</th>
+        <th>Fecha</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pago in socio.pagos %}
+      <tr>
+        <td>{{ pago.id }}</td>
+        <td>{{ pago.monto }}</td>
+        <td>{{ pago.fecha_pago.strftime('%d/%m/%Y') }}</td>
+        <td>{{ pago.estado }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4" class="text-center">No hay pagos registrados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <a href="{{ url_for('editar_socio', socio_id=socio.id) }}" class="btn btn-warning">Editar Socio</a>
+  <a href="{{ url_for('eliminar_socio', socio_id=socio.id) }}" class="btn btn-danger" onclick="return confirm('¿Está seguro de eliminar este socio?')">Eliminar Socio</a>
+{% endblock %}

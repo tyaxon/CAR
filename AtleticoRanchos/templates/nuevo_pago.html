@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Registrar Nuevo Pago</h2>
+    
+    <form method="POST" action="{{ url_for('nuevo_pago') }}">
+        <div class="mb-3">
+            <label for="socio_id" class="form-label">Socio *</label>
+            <select class="form-select" id="socio_id" name="socio_id" required>
+                <option value="">Seleccione un socio</option>
+                {% for socio in socios %}
+                <option value="{{ socio.id }}">{{ socio.apellido }}, {{ socio.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="monto" class="form-label">Monto *</label>
+            <input type="number" step="0.01" class="form-control" id="monto" name="monto" required>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="mes_pagado" class="form-label">Mes Pagado *</label>
+                <input type="month" class="form-control" id="mes_pagado" name="mes_pagado" 
+                       value="{{ mes_actual }}" required>
+            </div>
+            <div class="col-md-6">
+                <label for="fecha_pago" class="form-label">Fecha de Pago *</label>
+                <input type="date" class="form-control" id="fecha_pago" name="fecha_pago" 
+                       value="{{ hoy }}" required>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <label for="metodo_pago" class="form-label">Método de Pago *</label>
+            <select class="form-select" id="metodo_pago" name="metodo_pago" required>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Tarjeta">Tarjeta de Crédito/Débito</option>
+                <option value="Otro">Otro</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Registrar Pago</button>
+        <a href="{{ url_for('listar_pagos') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

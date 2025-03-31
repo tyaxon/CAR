@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Registro de Pagos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Registro de Pagos</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" action="{{ url_for('listar_pagos') }}" class="row g-3">
+                <div class="col-md-6">
+                    <label for="mes" class="form-label">Filtrar por mes:</label>
+                    <input type="month" class="form-control" id="mes" name="mes" 
+                           value="{{ mes_actual }}" onchange="this.form.submit()">
+                </div>
+                <div class="col-md-6 d-flex align-items-end">
+                    <a href="{{ url_for('nuevo_pago') }}" class="btn btn-success ms-auto">
+                        <i class="bi bi-plus-circle"></i> Nuevo Pago
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total Recaudado</h5>
+                    <p class="card-text h4">${{ "%.2f"|format(total_mes) }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Socios al día</h5>
+                    <p class="card-text h4">{{ socios_pagados }}/{{ total_socios }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ url_for('reporte_morosos') }}" class="card text-white bg-danger text-decoration-none">
+                <div class="card-body">
+                    <h5 class="card-title">Socios deudores</h5>
+                    <p class="card-text h4">{{ total_socios - socios_pagados }}</p>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Socio</th>
+                    <th>Mes Pagado</th>
+                    <th>Monto</th>
+                    <th>Método</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pago in pagos %}
+                <tr>
+                    <td>{{ pago.fecha.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ pago.socio.apellido }}, {{ pago.socio.nombre }}</td>
+                    <td>{{ pago.mes_pagado }}</td>
+                    <td>${{ "%.2f"|format(pago.monto) }}</td>
+                    <td>{{ pago.metodo_pago }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No hay pagos registrados para este mes</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

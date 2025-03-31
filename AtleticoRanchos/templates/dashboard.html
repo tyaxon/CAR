@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de Control{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Panel de Control</h2>
+    
+    <div class="row">
+        <!-- Tarjeta Total Socios -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-primary h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Total Socios</h5>
+                            <p class="card-text display-4">{{ total_socios }}</p>
+                        </div>
+                        <i class="bi bi-people-fill" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tarjeta Total Jugadores -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-success h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Jugadores</h5>
+                            <p class="card-text display-4">{{ total_jugadores }}</p>
+                        </div>
+                        <i class="bi bi-person-bounding-box" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tarjeta Socios Morosos -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-danger h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Deudores</h5>
+                            <p class="card-text display-4">{{ socios_morosos }}</p>
+                        </div>
+                        <i class="bi bi-exclamation-triangle" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Acciones Rápidas -->
+    <div class="row mt-4">
+        <div class="col-md-6 mb-3">
+            <a href="{{ url_for('nuevo_socio') }}" class="btn btn-primary btn-lg w-100 py-3">
+                <i class="bi bi-person-plus"></i> Agregar Nuevo Socio
+            </a>
+        </div>
+        <div class="col-md-6 mb-3">
+            <a href="{{ url_for('nuevo_pago') }}" class="btn btn-success btn-lg w-100 py-3">
+                <i class="bi bi-cash-stack"></i> Registrar Pago
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

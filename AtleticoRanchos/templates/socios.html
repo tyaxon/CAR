@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4">Gestión de Socios</h2>
+    
+    <!-- Panel de Búsqueda y Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('buscar_socios') }}">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" name="q" 
+                               value="{{ termino_busqueda }}" placeholder="Buscar...">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="categoria">
+                            <option value="">Todas las categorías</option>
+                            {% for cat in ['Plantel superior', 'Cuarta', 'Quinta', 'Sexta', 'Septima'] %}
+                            <option value="{{ cat }}" {% if filtro_categoria == cat %}selected{% endif %}>
+                                {{ cat }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="estado_pago">
+                            <option value="">Todos los estados</option>
+                            <option value="al_dia" {% if filtro_estado_pago == 'al_dia' %}selected{% endif %}>
+                                Al día con pagos
+                            </option>
+                            <option value="morosos" {% if filtro_estado_pago == 'morosos' %}selected{% endif %}>
+                                Deudores
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Filtrar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Tabla de Socios -->
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th>Es Jugador</th>
+                        <th>Ficha medica</th>
+                        <th>Hasta cuando la ficha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for socio in socios %}
+                    <tr>
+                        <td>{{ socio.nombre }}</td>
+                        <td>{{ socio.apellido }}</td>
+                        <td>{{ socio.telefono }}</td>
+                        <td>{{ socio.correo }}</td>
+                        <td>{{ "Sí" if socio.es_jugador else "No" }}</td>
+                        <td>{{ "Sí" if socio.ficha_medica else "No" }}</td>
+                        <td>
+                            {% if socio.fecha_proxima_revision_medica %}
+                              {{ socio.fecha_proxima_revision_medica.strftime("%d/%m/%Y") }}
+                            {% else %}
+                              -
+                            {% endif %}
+                          </td>
+                        <td>
+                            <a href="{{ url_for('editar_socio', id=socio.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                            <a href="{{ url_for('eliminar_socio', id=socio.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar este socio?');">Eliminar</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5">No se encontraron socios</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

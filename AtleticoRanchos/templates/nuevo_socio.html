@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Socio{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Agregar Nuevo Socio</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('nuevo_socio') }}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="apellido" class="form-label">Apellido *</label>
+                            <input type="text" class="form-control" id="apellido" name="apellido" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="telefono" name="telefono">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="correo" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="correo" name="correo">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="direccion" class="form-label">Dirección</label>
+                    <input type="text" class="form-control" id="direccion" name="direccion">
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="es_jugador" name="es_jugador">
+                    <label class="form-check-label" for="es_jugador">Es Jugador</label>
+                </div>
+                
+                <div id="jugador_fields" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="categoria" class="form-label">Categoría</label>
+                                <select class="form-select" id="categoria" name="categoria">
+                                    <option value="">Seleccione una categoría</option>
+                                    <option value="Plantel superior">Plantel superior</option>
+                                    <option value="Cuarta">Cuarta</option>
+                                    <option value="Quinta">Quinta</option>
+                                    <option value="Sexta">Sexta</option>
+                                    <option value="Septima">Septima</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="ficha_medica" name="ficha_medica">
+                                <label class="form-check-label" for="ficha_medica">Tiene Ficha Médica</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="ficha_medica_fields" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="fecha_ultima_revision" class="form-label">Fecha Última Revisión Médica</label>
+                                    <input type="date" class="form-control" id="fecha_ultima_revision" name="fecha_ultima_revision">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="fecha_proxima_revision" class="form-label">Fecha Próxima Revisión Médica</label>
+                                    <input type="date" class="form-control" id="fecha_proxima_revision" name="fecha_proxima_revision">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{{ url_for('listar_socios') }}" class="btn btn-secondary me-md-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Guardar Socio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Mostrar/ocultar campos de jugador
+    document.getElementById('es_jugador').addEventListener('change', function() {
+        const jugadorFields = document.getElementById('jugador_fields');
+        jugadorFields.style.display = this.checked ? 'block' : 'none';
+        if (!this.checked) {
+            document.getElementById('categoria').value = '';
+            document.getElementById('ficha_medica').checked = false;
+            document.getElementById('ficha_medica_fields').style.display = 'none';
+        }
+    });
+
+    // Mostrar/ocultar campos de ficha médica
+    document.getElementById('ficha_medica').addEventListener('change', function() {
+        const fichaFields = document.getElementById('ficha_medica_fields');
+        fichaFields.style.display = this.checked ? 'block' : 'none';
+        if (!this.checked) {
+            document.getElementById('fecha_ultima_revision').value = '';
+            document.getElementById('fecha_proxima_revision').value = '';
+        }
+    });
+</script>
+{% endblock %}

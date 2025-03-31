@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Morosos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Socios Morosos - {{ mes_actual }}</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title">Total de morosos: {{ morosos|length }}</h5>
+                </div>
+                <div>
+                    <a href="{{ url_for('listar_pagos') }}" class="btn btn-primary">
+                        <i class="bi bi-arrow-left"></i> Volver a pagos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Apellido y Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Tipo</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for socio in morosos %}
+                <tr>
+                    <td>{{ socio.id }}</td>
+                    <td>{{ socio.apellido }}, {{ socio.nombre }}</td>
+                    <td>{{ socio.telefono or '-' }}</td>
+                    <td>{{ socio.correo or '-' }}</td>
+                    <td>
+                        {% if socio.es_jugador %}
+                        <span class="badge bg-primary">Jugador</span>
+                        {% else %}
+                        <span class="badge bg-info">Socio</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('nuevo_pago') }}?socio_id={{ socio.id }}" 
+                           class="btn btn-sm btn-success">
+                            <i class="bi bi-cash"></i> Registrar Pago
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">¡Todos los socios están al día!</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
