@@ -1,39 +1,38 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail, Message  # Importación añadida
+from flask_mail import Mail, Message
 from openpyxl import Workbook
 from io import BytesIO
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
+from dotenv import load_dotenv
+from flask_migrate import Migrate
 
-from flask_mail import Message
-from datetime import timedelta
-
+# Cargar las variables de entorno desde el archivo .env
+load_dotenv()
 
 app = Flask(__name__)
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'chiozzapedro777@gmail.com'
-app.config['MAIL_PASSWORD'] = 'kiue oixa cjyg nwqj'
-mail = Mail(app)
-app.secret_key = 'tu_clave_secreta_super_segura'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/club_management'
 
+# Configuración de la app usando variables de entorno
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.secret_key = os.getenv('SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Inicialización de extensiones
 db = SQLAlchemy(app)
-
-
-from flask_migrate import Migrate
+mail = Mail(app)
 migrate = Migrate(app, db)
 
-
-
+# Modelos
 class Socio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
@@ -60,13 +59,13 @@ class Pago(db.Model):
     metodo_pago = db.Column(db.String(20))
 
 
-# Llamar a crear_usuario_admin al iniciar la app
+# Crear tablas si no existen
 with app.app_context():
-    
-    db.create_all() 
+    db.create_all()
+
+# Rutas
 
 @app.route('/')
-
 def dashboard():
     total_socios = Socio.query.filter_by(activo=True).count()
     total_jugadores = Socio.query.filter_by(es_jugador=True, activo=True).count()
@@ -79,13 +78,11 @@ def dashboard():
     ).count()
     
     return render_template('dashboard.html',
-                         total_socios=total_socios,
-                         total_jugadores=total_jugadores,
-                         socios_morosos=socios_morosos)
+                           total_socios=total_socios,
+                           total_jugadores=total_jugadores,
+                           socios_morosos=socios_morosos)
 
-# Rutas CRUD para Socios
 @app.route('/socios')
-
 def listar_socios():
     try:
         filtro = request.args.get('filtro', 'todos')
@@ -103,9 +100,8 @@ def listar_socios():
         app.logger.debug(f"Socios encontrados: {len(socios)}")
         
         return render_template('socios.html', 
-                            socios=socios, 
-                            filtro_actual=filtro)
-                            
+                               socios=socios, 
+                               filtro_actual=filtro)
     except Exception as e:
         app.logger.error(f"Error en listar_socios: {str(e)}")
         flash("Ocurrió un error al cargar los socios", "error")
@@ -180,9 +176,7 @@ def editar_socio(id):
     
     return render_template('editar_socio.html', socio=socio)
 
-
 @app.route('/socio/eliminar/<int:id>')
-
 def eliminar_socio(id):
     socio = Socio.query.get_or_404(id)
     socio.activo = False
@@ -190,9 +184,7 @@ def eliminar_socio(id):
     flash('Socio marcado como inactivo', 'warning')
     return redirect(url_for('listar_socios'))
 
-# Nueva ruta para búsqueda de socios
 @app.route('/buscar_socios', methods=['GET'])
-
 def buscar_socios():
     termino = request.args.get('q', '').strip()
     categoria = request.args.get('categoria', '')
@@ -225,16 +217,12 @@ def buscar_socios():
     socios = query.order_by(Socio.apellido).all()
     
     return render_template('socios.html', 
-                        socios=socios,
-                        termino_busqueda=termino,
-                        filtro_categoria=categoria,
-                        filtro_estado_pago=estado_pago)
-
-
-
+                           socios=socios,
+                           termino_busqueda=termino,
+                           filtro_categoria=categoria,
+                           filtro_estado_pago=estado_pago)
 
 @app.route('/pagos')
-
 def listar_pagos():
     mes = request.args.get('mes', datetime.now().strftime("%Y-%m"))
     pagos = Pago.query.filter_by(mes_pagado=mes).order_by(Pago.fecha.desc()).all()
@@ -244,14 +232,13 @@ def listar_pagos():
     socios_pagados = len({p.socio_id for p in pagos})
     
     return render_template('pagos.html', 
-                         pagos=pagos, 
-                         mes_actual=mes,
-                         total_mes=total_mes,
-                         total_socios=total_socios,
-                         socios_pagados=socios_pagados)
+                           pagos=pagos, 
+                           mes_actual=mes,
+                           total_mes=total_mes,
+                           total_socios=total_socios,
+                           socios_pagados=socios_pagados)
 
 @app.route('/pago/nuevo', methods=['GET', 'POST'])
-
 def nuevo_pago():
     if request.method == 'POST':
         try:
@@ -292,18 +279,12 @@ def nuevo_pago():
             db.session.rollback()
             flash(f'Error al registrar el pago: {str(e)}', 'error')
     
-    # Para ambos casos (GET y cuando hay error en POST)
     socios = Socio.query.filter_by(activo=True).order_by(Socio.apellido).all()
     hoy = datetime.now().strftime('%Y-%m-%d')
     return render_template('nuevo_pago.html', 
-                         socios=socios,
-                         mes_actual=datetime.now().strftime("%Y-%m"),
-                         hoy=hoy)
-
-
-
-
-
+                           socios=socios,
+                           mes_actual=datetime.now().strftime("%Y-%m"),
+                           hoy=hoy)
 
 def generar_factura_pdf(pago, socio):
     """
@@ -415,8 +396,6 @@ def generar_factura_pdf(pago, socio):
     doc.build(elements)
     return ruta_factura
 
-
-
 def enviar_factura(pago, socio):
     try:
         ruta_factura = generar_factura_pdf(pago, socio)  # Genera el PDF de la factura
@@ -447,10 +426,7 @@ Club Atlético Ranchos
         app.logger.error(f"Error enviando factura a {socio.correo}: {str(e)}")
         return False
 
-    
-
 @app.route('/reporte/morosos')
-
 def reporte_morosos():
     mes_actual = datetime.now().strftime("%Y-%m")
     socios_con_pago = [p.socio_id for p in Pago.query.filter_by(mes_pagado=mes_actual)]
@@ -461,9 +437,8 @@ def reporte_morosos():
     ).order_by(Socio.apellido).all()
     
     return render_template('reporte_morosos.html',
-                         morosos=morosos,
-                         mes_actual=mes_actual)
-
+                           morosos=morosos,
+                           mes_actual=mes_actual)
 
 def enviar_recordatorio(socio, mes):
     try:
@@ -471,16 +446,15 @@ def enviar_recordatorio(socio, mes):
             subject=f"Recordatorio de Pago - {mes}",
             sender=app.config['MAIL_USERNAME'],
             recipients=[socio.correo],
-            body=f"""
-            Hola {socio.nombre} {socio.apellido},
+            body=f"""Hola {socio.nombre} {socio.apellido},
 
-            Notamos que aún no has realizado el pago correspondiente al mes de {mes}.
-            Te recordamos que regularizar tu situación es importante para seguir disfrutando de los beneficios del club.
+Notamos que aún no has realizado el pago correspondiente al mes de {mes}.
+Te recordamos que regularizar tu situación es importante para seguir disfrutando de los beneficios del club.
 
-            Si ya realizaste el pago, por favor ignora este mensaje.
+Si ya realizaste el pago, por favor ignora este mensaje.
 
-            Saludos,
-            Club Atlético Ranchos
+Saludos,
+Club Atlético Ranchos
             """
         )
         mail.send(msg)
@@ -488,7 +462,6 @@ def enviar_recordatorio(socio, mes):
     except Exception as e:
         app.logger.error(f"Error enviando recordatorio a {socio.correo}: {str(e)}")
         return False
-
 
 @app.route('/verificar_morosos')
 def verificar_morosos():
@@ -509,9 +482,7 @@ def verificar_morosos():
     
     return f"Notificaciones enviadas a {len(morosos)} socios morosos."
 
-
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        
     app.run(debug=True)

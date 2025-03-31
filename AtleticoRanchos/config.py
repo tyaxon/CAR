@@ -12,7 +12,4 @@ class Config:
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'tu_contraseña')
     MAIL_DEFAULT_SENDER = MAIL_USERNAME
 
-    # Configuración de Twilio (para WhatsApp)
-    TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', 'tu_account_sid')
-    TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', 'tu_auth_token')
-    TWILIO_WHATSAPP_FROM = os.getenv('TWILIO_WHATSAPP_FROM', 'whatsapp:+14155238886')
+    
